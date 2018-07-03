@@ -1,0 +1,116 @@
+factorial := []int{
+	// if N < 2 return 1
+	LOAD,   // 0 - fact()
+	-3,     // 1
+	ICONST, // 2
+	2,      // 3
+	ILT,    // 4
+	BRF,    // 5
+	10,     // 6
+	ICONST, // 7
+	1,      // 8
+	RET,    // 9
+
+	// return N * fact(N-1)
+	LOAD,   // 10
+	-3,     // 11
+	LOAD,   // 12
+	-3,     // 13
+	ICONST, // 14
+	1,      // 15
+	ISUB,   // 16
+	CALL,   // 17
+	0,      // 18
+	1,      // 19
+	IMUL,   // 20
+	RET,    // 21
+
+	// print fact(N)
+	ICONST, // 22
+	5,      // 23
+	MSTORE, // 24
+	0,      // 25
+	MLOAD,  // 26
+	0,      // 27
+	CALL,   // 28
+	0,      // 29
+	1,      // 30
+	IPRINT, // 31
+	HALT,   // 32
+}
+
+adder := []int{
+	LOAD, // 0
+	-3,   // 1
+	LOAD, // 2
+	-4,   // 3
+	IADD, // 4
+	RET,  // 5
+
+	ICONST, // 6
+	1,      // 7
+	ICONST, // 8
+	1,      // 9
+	CALL,   // 10
+	0,      // 11
+	2,      // 12
+	IPRINT, // 13
+	HALT,   // 14
+}
+
+// Hello World!
+// 72 101 108 108 111 32 87 111 114 108 100 33
+hellowordstring := []int{
+	ICONST,
+	72,
+	MSTORE,
+	0,
+	ICONST,
+	101,
+	MSTORE,
+	1,
+	ICONST,
+	108,
+	MSTORE,
+	2,
+	ICONST,
+	108,
+	MSTORE,
+	3,
+	ICONST,
+	111,
+	MSTORE,
+	4,
+	ICONST,
+	32,
+	MSTORE,
+	5,
+	ICONST,
+	87,
+	MSTORE,
+	6,
+	ICONST,
+	111,
+	MSTORE,
+	7,
+	ICONST,
+	114,
+	MSTORE,
+	9,
+	ICONST,
+	108,
+	MSTORE,
+	10,
+	ICONST,
+	100,
+	MSTORE,
+	11,
+	ICONST,
+	33,
+	MSTORE,
+	12,
+	MLOAD,
+	0,
+	CPRINT,
+	HALT,
+}

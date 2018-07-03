@@ -1,9 +1,8 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
+// opcode instruction set
 const (
 	_ = iota
 	ICONST
@@ -13,19 +12,21 @@ const (
 	IGT
 	ILT
 	IET
-	BR
+	JMP
 	BRT
 	BRF
 	MSTORE
 	MLOAD
 	LOAD
 	POP
-	PRINT
+	IPRINT
+	CPRINT
 	CALL
 	RET
 	HALT
 )
 
+// booleans
 const (
 	FALSE = iota
 	TRUE
@@ -37,6 +38,7 @@ type VM struct {
 	code   []int
 	ip     int // instruction pointer
 	fp     int // frame pointer
+	debug  bool
 }
 
 func (vm *VM) Cpu() {
@@ -76,7 +78,7 @@ func (vm *VM) Cpu() {
 			v2 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			vm.stack = append(vm.stack, v2-v1)
+			vm.stack = append(vm.stack, v1-v2)
 
 		case MSTORE:
 			addr := vm.code[vm.ip]
@@ -91,52 +93,55 @@ func (vm *VM) Cpu() {
 
 			vm.stack = append(vm.stack, vm.memory[addr])
 
-		case PRINT:
+		case IPRINT:
 			fmt.Println(vm.stack[len(vm.stack)-1])
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-		case IGT:
-			a := vm.stack[len(vm.stack)-1]
+		case CPRINT:
+			fmt.Printf("%c", vm.stack[len(vm.stack)-1])
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			b := vm.stack[len(vm.stack)-1]
+		case IGT:
+			v1 := vm.stack[len(vm.stack)-1]
+			vm.stack = vm.stack[:len(vm.stack)-1]
+
+			v2 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
 			v := FALSE
-			if b > a {
+			if v1 > v2 {
 				v = TRUE
 			}
 			vm.stack = append(vm.stack, v)
 
 		case ILT:
-			a := vm.stack[len(vm.stack)-1]
+			v1 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			b := vm.stack[len(vm.stack)-1]
+			v2 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
 			v := FALSE
-			if b < a {
+			if v1 < v2 {
 				v = TRUE
 			}
 			vm.stack = append(vm.stack, v)
 
 		case IET:
-			a := vm.stack[len(vm.stack)-1]
+			v1 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			b := vm.stack[len(vm.stack)-1]
+			v2 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
 			v := FALSE
-			if b == a {
+			if v1 == v2 {
 				v = TRUE
 			}
 			vm.stack = append(vm.stack, v)
 
-		case BR:
+		case JMP:
 			vm.ip = vm.code[vm.ip]
-			vm.ip++
 
 		case BRT:
 			addr := vm.code[vm.ip]
@@ -197,60 +202,119 @@ func (vm *VM) Cpu() {
 			break
 		}
 
-		// fmt.Printf("Stack: %v\n", vm.stack)
-		// fmt.Printf("Memory: %v\n", vm.memory)
+		if vm.debug {
+			fmt.Printf("Stack: %v\n", vm.stack)
+			fmt.Printf("Memory: %v\n", vm.memory)
+		}
 	}
 }
 
 func main() {
-	fact := 0
 	code := []int{
-		// if N < 2 return 1
-		LOAD,   // 0 - fact()
-		-3,     // 1
-		ICONST, // 2
-		2,      // 3
-		ILT,    // 4
-		BRF,    // 5
-		10,     // 6
+		// fibonacci(n)
+		// if n == 0: return 0
+		ICONST, // 0
+		0,      // 1
+		LOAD,   // 2
+		-3,     // 3
+		IET,    // 4
+		BRT,    // 5
+		32,     // 6
+
+		// if n == 1: return 1
 		ICONST, // 7
 		1,      // 8
-		RET,    // 9
+		LOAD,   // 9
+		-3,     // 10
+		IET,    // 11
+		BRT,    // 12
+		35,     // 13
 
-		// return N * fact(N-1)
-		LOAD,   // 10
-		-3,     // 11
-		LOAD,   // 12
-		-3,     // 13
+		// v1 := fib(n-1)
 		ICONST, // 14
 		1,      // 15
-		ISUB,   // 16
-		CALL,   // 17
-		fact,   // 18
-		1,      // 19
-		IMUL,   // 20
-		RET,    // 21
+		LOAD,   // 16
+		-3,     // 17
+		ISUB,   // 18
+		CALL,   // 19
+		0,      // 20
+		1,      // 21
 
-		// print fact(N)
+		// v2 := fib(n-2)
 		ICONST, // 22
-		5,      // 23
-		MSTORE, // 24
-		0,      // 25
-		MLOAD,  // 26
-		0,      // 27
-		CALL,   // 28
-		fact,   // 29
-		1,      // 30
-		PRINT,  // 31
-		HALT,   // 32
+		2,      // 23
+		LOAD,   // 24
+		-3,     // 25
+		ISUB,   // 26
+		CALL,   // 27
+		0,      // 28
+		1,      // 29
+
+		// return v1 + v2
+		IADD, // 30
+		RET,  // 31
+
+		// return 0
+		ICONST, // 32
+		0,      // 33
+		RET,    // 34
+
+		// return 1
+		ICONST, // 35
+		1,      // 36
+		RET,    // 37
+
+		// main()
+		// i := 0
+		ICONST, // 38
+		0,      // 39
+		MSTORE, // 40
+		0,      // 41
+
+		// while i < 10 {
+		ICONST, // 42
+		21,     // 43
+		MLOAD,  // 44
+		0,      // 45
+		ILT,    // 46
+		BRF,    // 47
+		64,     // 48
+
+		// fibonacci(n)
+		MLOAD,  // 49
+		0,      // 50
+		CALL,   // 51
+		0,      // 52
+		1,      // 53
+		IPRINT, // 54
+
+		// i++
+		MLOAD,  // 55
+		0,      // 56
+		ICONST, // 57
+		1,      // 58
+		IADD,   // 59
+		MSTORE, // 60
+		0,      // 61
+
+		// }
+		JMP, // 62
+		42,  // 63
+
+		// }
+		HALT, // 64
 	}
 
-	entry := 22
+	// cpu setup
+	entry := 38
 	memsize := 1
+	debug := false
+
 	vm := VM{
 		code:   code,
 		ip:     entry,
 		memory: make([]int, memsize),
+		debug:  debug,
 	}
 	vm.Cpu()
 }
