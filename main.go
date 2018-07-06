@@ -14,8 +14,8 @@ const (
 	ILT
 	IET
 	JMP
-	JNZ
-	JZ
+	BRT
+	BRF
 	MSTORE
 	MLOAD
 	LOAD
@@ -61,7 +61,7 @@ func (vm *VM) Cpu() {
 			v1 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			vm.stack = append(vm.stack, v1 + v2)
+			vm.stack = append(vm.stack, v1+v2)
 
 		case IMUL:
 			v2 := vm.stack[len(vm.stack)-1]
@@ -70,7 +70,7 @@ func (vm *VM) Cpu() {
 			v1 := vm.stack[len(vm.stack)-1]
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-			vm.stack = append(vm.stack, v1 * v2)
+			vm.stack = append(vm.stack, v1*v2)
 
 		case ISUB:
 			v2 := vm.stack[len(vm.stack)-1]
@@ -157,7 +157,7 @@ func (vm *VM) Cpu() {
 		case JMP:
 			vm.ip = vm.code[vm.ip]
 
-		case JNZ:
+		case BRT:
 			addr := vm.code[vm.ip]
 			vm.ip++
 			if vm.stack[len(vm.stack)-1] == TRUE {
@@ -165,7 +165,7 @@ func (vm *VM) Cpu() {
 			}
 			vm.stack = vm.stack[:len(vm.stack)-1]
 
-		case JZ:
+		case BRF:
 			addr := vm.code[vm.ip]
 			vm.ip++
 			if vm.stack[len(vm.stack)-1] == FALSE {
@@ -218,20 +218,102 @@ func (vm *VM) Cpu() {
 
 		if vm.debug {
 			fmt.Printf("Stack: %v\n", vm.stack)
-			fmt.Printf("Memory: %v\n", vm.memory)
+			fmt.Printf("Memory: %v\n\n", vm.memory)
 		}
 	}
 }
 
 func main() {
 	code := []int{
-		
+		// collatz(n):
+		LOAD,   // 0
+		-3,     // 1
+		ICONST, // 2
+		2,      // 3
+		IDIV,   // 4
+		BRT,    // 5
+		15,     // 6
+
+		// return n / 2
+		POP,    // 7
+		LOAD,   // 8
+		-3,     // 9
+		ICONST, // 10
+		2,      // 11
+		IDIV,   // 12
+		POP,    // 13
+		RET,    // 14
+
+		// return (3 * n) + 1
+		ICONST, // 15
+		3,      // 16
+		LOAD,   // 17
+		-3,     // 18
+		IMUL,   // 19
+		ICONST, // 20
+		1,      // 21
+		IADD,   // 22
+		RET,    // 23
+
+		// conjecture(n):
+		// t := n
+		LOAD,   // 24
+		-3,     // 25
+		MSTORE, // 26
+		1,      // 27
+
+		// while t != 1
+		MLOAD,  // 28
+		1,      // 29
+		ICONST, // 30
+		1,      // 31
+		IET,    // 32
+
+		// break
+		BRT, // 33
+		52,  // 34
+
+		// t = collatz(t)
+		CALL,   // 35
+		0,      // 36
+		1,      // 37
+		MSTORE, // 38
+		1,      // 39
+
+		// nums = append(nums, t)
+		// print t
+		MLOAD,  // 40
+		1,      // 41
+		IPRINT, // 42
+
+		// i++
+		MLOAD,  // 43
+		0,      // 44
+		ICONST, // 45
+		1,      // 46
+		IADD,   // 47
+		MSTORE, // 48
+		0,      // 49
+
+		JMP, // 50
+		28,  // 51
+
+		// return nums
+		RET, // 52
+
+		// main():
+		ICONST, // 53
+		3,      // 54
+		CALL,   // 55
+		24,     // 56
+		1,      // 57
+		EXIT,   // 58
 	}
 
 	// cpu setup
-	entry := 0
-	memsize := 2
-	debug := false
+	entry := 53
+	memsize := 4
+	debug := true
 
 	vm := VM{
 		code:   code,
