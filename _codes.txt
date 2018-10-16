@@ -1,0 +1,236 @@
+// linear_congruential(a, x, c, m):
+//   ((a * x) + c) % m
+code := []int{
+	// v1 := a * x
+	ICONST,
+	2,
+	ICONST,
+	18,
+	IMUL,
+
+	// v2 := v1 + c
+	ICONST,
+	3,
+	IADD,
+
+	// v2 % m
+	ICONST,
+	15,
+	IDIV,
+
+	POP,
+	IPRINT,
+}
+
+fibonacci := []int{
+	// fibonacci(n)
+	// if n == 0: return 0
+	vm.PUSH,  // 0
+	0,        // 1
+	vm.VLOAD, // 2
+	-3,       // 3
+	vm.EQ,    // 4
+	vm.JNZ,   // 5
+	32,       // 6
+
+	// if n == 1: return 1
+	vm.PUSH,  // 7
+	1,        // 8
+	vm.VLOAD, // 9
+	-3,       // 10
+	vm.EQ,    // 11
+	vm.JNZ,   // 12
+	35,       // 13
+
+	// v1 := fib(n-1)
+	vm.PUSH,  // 14
+	1,        // 15
+	vm.VLOAD, // 16
+	-3,       // 17
+	vm.SUB,   // 18
+	vm.CALL,  // 19
+	0,        // 20
+	1,        // 21
+
+	// v2 := fib(n-2)
+	vm.PUSH,  // 22
+	2,        // 23
+	vm.VLOAD, // 24
+	-3,       // 25
+	vm.SUB,   // 26
+	vm.CALL,  // 27
+	0,        // 28
+	1,        // 29
+
+	// return v1 + v2
+	vm.ADD, // 30
+	vm.RET, // 31
+
+	// return 0
+	vm.PUSH, // 32
+	0,       // 33
+	vm.RET,  // 34
+
+	// return 1
+	vm.PUSH, // 35
+	1,       // 36
+	vm.RET,  // 37
+
+	// main()
+	// i := 0
+	vm.PUSH,   // 38
+	0,         // 39
+	vm.MSTORE, // 40
+	0,         // 41
+
+	// while i < 10 {
+	vm.PUSH,  // 42
+	10,       // 43
+	vm.MLOAD, // 44
+	0,        // 45
+	vm.LT,    // 46
+	vm.JZ,    // 47
+	64,       // 48
+
+	// fibonacci(n)
+	vm.MLOAD, // 49
+	0,        // 50
+	vm.CALL,  // 51
+	0,        // 52
+	1,        // 53
+	vm.PRINT, // 54
+
+	// i++
+	vm.MLOAD,  // 55
+	0,         // 56
+	vm.PUSH,   // 57
+	1,         // 58
+	vm.ADD,    // 59
+	vm.MSTORE, // 60
+	0,         // 61
+
+	// }
+	vm.JMP, // 62
+	42,     // 63
+
+	// }
+	vm.EXIT, // 64
+}
+
+factorial := []int{
+	// if N < 2 return 1
+	vm.VLOAD, // 0 - fact()
+	-3,       // 1
+	vm.PUSH,  // 2
+	2,        // 3
+	vm.LT,    // 4
+	vm.JZ,    // 5
+	10,       // 6
+	vm.PUSH,  // 7
+	1,        // 8
+	vm.RET,   // 9
+
+	// return N * fact(N-1)
+	vm.VLOAD, // 10
+	-3,       // 11
+	vm.VLOAD, // 12
+	-3,       // 13
+	vm.PUSH,  // 14
+	1,        // 15
+	vm.SUB,   // 16
+	vm.CALL,  // 17
+	0,        // 18
+	1,        // 19
+	vm.MUL,   // 20
+	vm.RET,   // 21
+
+	// main
+	// print fact(N)
+	vm.PUSH,   // 22
+	5,         // 23
+	vm.MSTORE, // 24
+	0,         // 25
+	vm.MLOAD,  // 26
+	0,         // 27
+	vm.CALL,   // 28
+	0,         // 29
+	1,         // 30
+	vm.PRINT,  // 31
+	vm.EXIT,   // 32
+}
+
+adder := []int{
+	LOAD, // 0
+	-3,   // 1
+	LOAD, // 2
+	-4,   // 3
+	IADD, // 4
+	RET,  // 5
+
+	ICONST, // 6
+	1,      // 7
+	ICONST, // 8
+	1,      // 9
+	CALL,   // 10
+	0,      // 11
+	2,      // 12
+	IPRINT, // 13
+	HALT,   // 14
+}
+
+// Hello World!
+// 72 101 108 108 111 32 87 111 114 108 100 33
+hellowordstring := []int{
+	ICONST,
+	72,
+	MSTORE,
+	0,
+	ICONST,
+	101,
+	MSTORE,
+	1,
+	ICONST,
+	108,
+	MSTORE,
+	2,
+	ICONST,
+	108,
+	MSTORE,
+	3,
+	ICONST,
+	111,
+	MSTORE,
+	4,
+	ICONST,
+	32,
+	MSTORE,
+	5,
+	ICONST,
+	87,
+	MSTORE,
+	6,
+	ICONST,
+	111,
+	MSTORE,
+	7,
+	ICONST,
+	114,
+	MSTORE,
+	9,
+	ICONST,
+	108,
+	MSTORE,
+	10,
+	ICONST,
+	100,
+	MSTORE,
+	11,
+	ICONST,
+	33,
+	MSTORE,
+	12,
+	MLOAD,
+	0,
+	CPRINT,
+	HALT,
+}
