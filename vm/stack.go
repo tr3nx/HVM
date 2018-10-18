@@ -1,7 +1,7 @@
 package vm
 
 type Stack struct {
-	Fp int // frame pointer
+	Fp    int // frame pointer
 	stack []int
 }
 
@@ -15,9 +15,9 @@ func (s *Stack) Push(v int) {
 
 func (s *Stack) Pop() int {
 	defer func() {
-		s.stack = s.stack[:len(s.stack) - 1]
+		s.stack = s.stack[:len(s.stack)-1]
 	}()
-	return s.stack[len(s.stack) - 1]
+	return s.stack[len(s.stack)-1]
 }
 
 func (s *Stack) Pops(argc int) []int {
@@ -29,7 +29,7 @@ func (s *Stack) Pops(argc int) []int {
 }
 
 func (s *Stack) Peek() int {
-	return s.stack[len(s.stack) - 1]
+	return s.stack[len(s.stack)-1]
 }
 
 func (s *Stack) PeekAt(i int) int {

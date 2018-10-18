@@ -1,8 +1,8 @@
 package vm
 
 type Code struct {
-	Ip int // instruction pointer
-	code []int
+	Ip      int // instruction pointer
+	code    []int
 	Current int
 }
 
@@ -15,10 +15,16 @@ func (c *Code) Load(code []int) {
 }
 
 func (c *Code) Pop() int {
-	defer func() {
-		c.Ip++
-	}()
+	defer func() { c.Ip++ }()
 	return c.Peek()
+}
+
+func (c *Code) Pops(argc int) []int {
+	rets := make([]int, argc)
+	for i := 0; i < argc; i++ {
+		rets[i] = c.Pop()
+	}
+	return rets
 }
 
 func (c *Code) Peek() int {
@@ -27,8 +33,4 @@ func (c *Code) Peek() int {
 
 func (c *Code) Length() int {
 	return len(c.code)
-}
-
-func (c *Code) TranslateOp(op int) string {
-	return opcodeMap[op]
 }

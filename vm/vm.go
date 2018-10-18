@@ -3,17 +3,18 @@ package vm
 import "fmt"
 
 type VM struct {
-	registers map[int]int
-	stack  *Stack
-	memory *Memory
-	code   *Code
-	debugging  bool
+	registers *Registers
+	stack     *Stack
+	memory    *Memory
+	code      *Code
+	debugging bool
 }
 
 func New(options ...func(*VM)) *VM {
 	vm := &VM{
+		registers: NewRegisters(),
 		stack: NewStack(),
-		code: NewCode(),
+		code:  NewCode(),
 	}
 	for _, fn := range options {
 		fn(vm)
@@ -98,6 +99,19 @@ func (vm *VM) Run() {
 
 		case POP:
 			vm.stack.Pop()
+
+		case SET:
+			v := vm.code.Pops(2)
+			vm.registers.Register[v[0]] = v[1]
+
+		case GET:
+			vm.stack.Push(vm.registers.Register[vm.code.Pop()])
+
+		case INC:
+			vm.registers.Increment(vm.code.Pop())
+
+		case DEC:
+			vm.registers.Decrement(vm.code.Pop())
 
 		case PRINT:
 			fmt.Printf("==========\n")

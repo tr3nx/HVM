@@ -1,16 +1,25 @@
 package vm
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func (vm *VM) Debug() {
-	if (!vm.debugging) {
+	if !vm.debugging {
 		return
 	}
 
 	opcode := vm.code.Current
-	stringcode := vm.code.TranslateOp(opcode)
 
-	fmt.Printf("Code   %v, %v\n", opcode, stringcode)
-	fmt.Printf("Stack  %v\n", vm.stack.Output())
-	fmt.Printf("Memory %v\n\n", vm.memory.Output())
+	var rs strings.Builder
+	for i, r := range vm.registers.Register {
+		rs.WriteString(fmt.Sprintf("           %s: %d\n", registerString[i], r))
+	}
+
+	fmt.Printf("Code       %v, %v\n", opcode, opcodeString[opcode])
+	fmt.Printf("Stack      %v\n", vm.stack.Output())
+	fmt.Printf("Memory     %v\n", vm.memory.Output())
+	fmt.Printf("Registers\n%v\n", rs.String())
+	fmt.Printf("\n")
 }
